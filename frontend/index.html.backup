@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalamandir — Indian Artisan Marketplace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Tiro+Devanagari+Hindi&display=swap"
+    rel="stylesheet">
+  <style>
+    /* Simplified CSS for demonstration */
+    :root {
+      --clay: #C4622D;
+      --ochre: #D4A017;
+      --cream: #F5EFE0;
+      --bark: #3B2A1A;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--bark);
+      margin: 0;
+      padding: 0;
+    }
+
+    nav {
+      background: white;
+      padding: 0.5rem 5vw;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-content {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--bark);
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--clay);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--bark);
+    }
+
+    .nav-logo span {
+      color: var(--clay);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .product-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-info {
+      padding: 1rem;
+    }
+
+    .product-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
+    }
+
+    .product-price {
+      font-weight: bold;
+      color: var(--clay);
+      font-size: 1.1rem;
+    }
+
+    .btn {
+      background: var(--clay);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .btn:hover {
+      background: var(--ochre);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--clay);
+      color: var(--clay);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+      font-style: italic;
+      color: #666;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <div class="nav-logo">Kala<span>mandir</span></div>
+    <div class="nav-content">
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#" onclick="loadProducts()">Shop</a></li>
+        <li><a href="#" onclick="loadArtists()">Artists</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+      <div id="navActions" class="nav-actions"></div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1>Indian Artisan Marketplace</h1>
+    <p>Directly from the artisan's workshop to your home.</p>
+
+    <h2>Featured Products</h2>
+    <div id="productGrid" class="product-grid">
+      <div class="loading">Loading products from backend API...</div>
+    </div>
+
+    <h2>Featured Artists</h2>
+    <div id="artistGrid" class="product-grid">
+      <div class="loading">Loading artists from backend API...</div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:5000/api';
+
+    // Helper to render HTML to a grid
+    function renderToGrid(gridId, items, templateFn) {
+      const grid = document.getElementById(gridId);
+      if (!items || items.length === 0) {
+        grid.innerHTML = '<div class="loading">No items found.</div>';
+        return;
+      }
+      grid.innerHTML = items.map(templateFn).join('');
+    }
+
+    function showError(gridId, message) {
+      document.getElementById(gridId).innerHTML =
+        `<div class="loading" style="color: var(--clay)">${message}</div>`;
+    }
+
+    async function loadProducts() {
+      try {
+        const response = await fetch(`${API_BASE}/products/featured`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const products = await response.json();
+
+        renderToGrid('productGrid', products, product => `
+          <div class="product-card">
+            <img src="${product.images?.[0]?.url || 'https://images.unsplash.com/photo-1582738411706-bfc8e691d1c2?w=500&q=80'}" 
+                 alt="${product.title}" class="product-img" onerror="this.src='https://via.placeholder.com/300x200?text=Product'">
+            <div class="product-info">
+              <div class="product-title">${product.title}</div>
+              <p>${product.description ? product.description.substring(0, 100) + '...' : 'No description available.'}</p>
+              <div class="product-price">₹${product.price}</div>
+              <button class="btn" onclick="addToCart('${product._id}')">Add to Cart</button>
+            </div>
+          </div>
+        `);
+      } catch (error) {
+        console.error('Error loading products:', error);
+        showError('productGrid', 'Error loading products. Check if backend is active.');
+      }
+    }
+
+    async function loadArtists() {
+      try {
+        const response = await fetch(`${API_BASE}/artists/featured`);
+        if (!response.ok) throw new Error('Failed to fetch artists');
+        const artists = await response.json();
+
+        renderToGrid('artistGrid', artists, artist => `
+          <div class="product-card">
+            <img src="${artist.image || 'https://images.unsplash.com/photo-1589156280159-27698a70f29e?w=400&q=80'}" 
+                 alt="${artist.name}" class="product-img" onerror="this.src='https://via.placeholder.com/300x200?text=Artist'">
+            <div class="product-info">
+              <div class="product-title">${artist.name}</div>
+              <p>${artist.craft || 'Traditional Artist'}</p>
+              <p><strong>Location:</strong> ${artist.state || 'India'}</p>
+              <button class="btn" onclick="viewArtist('${artist._id}')">View Profile</button>
+            </div>
+          </div>
+        `);
+      } catch (error) {
+        console.error('Error loading artists:', error);
+        showError('artistGrid', 'Error loading artists.');
+      }
+    }
+
+    function addToCart(productId) {
+      alert(`Product ${productId} added to cart (integration with backend needed)`);
+      // Here you would make a POST request to /api/cart or /api/orders
+    }
+
+    function viewArtist(artistId) {
+      alert(`Viewing artist ${artistId} (integration with backend needed)`);
+      // Here you would navigate to artist details page
+    }
+
+    function handleLogin() {
+      window.location.href = 'login.html';
+    }
+
+    function updateNav() {
+      const navActions = document.getElementById('navActions');
+      const token = localStorage.getItem('token');
+      if (token) {
+        navActions.innerHTML = `
+          <button class="btn btn-outline" onclick="window.location.href='admin.html'" style="margin-right: 10px">Dashboard</button>
+          <button class="btn" onclick="logout()">Logout</button>
+        `;
+      } else {
+        navActions.innerHTML = '<button class="btn" onclick="handleLogin()">Login</button>';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      location.reload();
+    }
+
+    // Load products on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      updateNav();
+      loadProducts();
+      loadArtists();
+    });
+  </script>
+</body>
+
+</html>
