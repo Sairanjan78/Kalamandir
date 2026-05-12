@@ -125,11 +125,11 @@ const orderSchema = new mongoose.Schema({
     }
 });
 
-// Generate order ID before saving
-orderSchema.pre('save', function (next) {
+// Generate order ID before validation
+orderSchema.pre('validate', function (next) {
     if (!this.orderId) {
         const timestamp = Date.now();
-        const random = Math.floor(Math.random() * 10000);
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
         this.orderId = `ORD${timestamp}${random}`;
     }
     this.updatedAt = Date.now();

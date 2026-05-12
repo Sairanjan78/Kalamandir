@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Search } from 'lucide-react';
+import { ShoppingCart, Check } from 'lucide-react';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import ExploreCulture from '../components/ExploreCulture';
 import FeaturedArtists from '../components/FeaturedArtists';
 import ArtProcess from '../components/ArtProcess';
@@ -12,7 +14,9 @@ import ContactUs from '../components/ContactUs';
 const Home = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [addedId, setAddedId] = useState(null);
+    const { addItem } = useCart();
+    const { user } = useAuth();
     const [currentHero, setCurrentHero] = useState(0);
 
     // Helper to translate your Windows path to a Web URL
@@ -48,9 +52,7 @@ const Home = () => {
         }
     };
 
-    const filteredProducts = products.filter(p => {
-        return p.title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    const filteredProducts = products;
 
     return (
         <div className="home-container">
@@ -120,9 +122,15 @@ const Home = () => {
                                         <span className="current-price">₹{product.price}</span>
                                         {product.originalPrice && <span className="old-price">₹{product.originalPrice}</span>}
                                     </div>
-                                    <button className="add-btn">
-                                        <ShoppingCart size={18} /> Add to Cart
-                                    </button>
+                                    {(!user || user.role === 'customer') && (
+                                        <button className={`add-btn ${addedId === product._id ? 'added' : ''}`} onClick={() => {
+                                            addItem(product);
+                                            setAddedId(product._id);
+                                            setTimeout(() => setAddedId(null), 1500);
+                                        }}>
+                                            {addedId === product._id ? <><Check size={18} /> Added</> : <><ShoppingCart size={18} /> Add to Cart</>}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

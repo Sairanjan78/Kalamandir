@@ -1,96 +1,83 @@
-import React from 'react';
-import { Star, CheckCircle, MapPin, Quote } from 'lucide-react';
-
-const artistData = [
-  {
-    id: 1,
-    name: "Sita Devi",
-    category: "Madhubani Art",
-    location: "Mubarakpur, Bihar",
-    rating: 4.9,
-    reviews: 124,
-    verified: true,
-    profileImage: "/api/my-pics/artist_profile_madhubani_1776627541121.png",
-    coverImages: [
-      "/api/my-pics/madhubani_art_category_1776626790880.png",
-      "/api/my-pics/madhubani_art_category_1776626790880.png"
-    ],
-    quote: "Every dot in my art is a prayer for my village."
-  },
-  {
-    id: 2,
-    name: "Jivya Soma Mashe",
-    category: "Warli Art",
-    location: "Dahanu, Maharashtra",
-    rating: 4.8,
-    reviews: 89,
-    verified: true,
-    profileImage: "/api/my-pics/warli_art_category_1776626957376.png",
-    coverImages: [
-      "/api/my-pics/warli_art_category_1776626957376.png",
-      "/api/my-pics/warli_art_category_1776626957376.png"
-    ],
-    quote: "Life is a circle, and my art represents our dance within it."
-  },
-  {
-    id: 3,
-    name: "Haripada Pal",
-    category: "Terracotta Pottery",
-    location: "Bankura, West Bengal",
-    rating: 4.7,
-    reviews: 56,
-    verified: false,
-    profileImage: "/api/my-pics/indian_pottery_category_1776627122349.png",
-    coverImages: [
-      "/api/my-pics/indian_pottery_category_1776627122349.png",
-      "/api/my-pics/indian_pottery_category_1776627122349.png"
-    ],
-    quote: "Clay has a memory. I just help it remember the old shapes."
-  }
-];
+import React, { useState, useEffect } from 'react';
+import { CheckCircle, MapPin } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 const ArtistCard = ({ artist }) => {
+  const [imgError, setImgError] = useState(false);
+  const hasImage = artist.profileImage && artist.profileImage.length > 1 && !imgError;
+
   return (
     <div className="artist-card-premium">
       <div className="artist-card-header">
         <div className="artist-profile-wrapper">
-          <img src={artist.profileImage} alt={artist.name} className="artist-avatar" />
-          {artist.verified && <CheckCircle className="verified-badge" size={18} />}
+          {hasImage ? (
+            <img
+              src={artist.profileImage}
+              alt={artist.name}
+              className="artist-avatar"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <div className="artist-avatar artist-avatar-fallback" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#C4622D', color: 'white', fontSize: '1.5rem', fontWeight: 700 }}>
+              {artist.name?.[0] || '?'}
+            </div>
+          )}
+          {artist.artistStatus === 'approved' && <CheckCircle className="verified-badge" size={18} />}
         </div>
         <div className="artist-info">
           <div className="artist-name-row">
             <h4>{artist.name}</h4>
-            <div className="artist-rating">
-              <Star size={14} fill="currentColor" />
-              <span>{artist.rating}</span>
-            </div>
           </div>
-          <p className="artist-category">{artist.category}</p>
-          <p className="artist-location">
-            <MapPin size={12} /> {artist.location}
-          </p>
+          {artist.bio && <p className="artist-category">{artist.bio}</p>}
+          {artist.location?.city && (
+            <p className="artist-location">
+              <MapPin size={12} /> {artist.location.city}{artist.location.state ? `, ${artist.location.state}` : ''}
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="artist-quote">
-        <Quote size={12} className="quote-icon" />
-        <p>{artist.quote}</p>
-      </div>
-
-      <div className="artist-previews">
-        {artist.coverImages.map((img, idx) => (
-          <div key={idx} className="preview-img-holder">
-            <img src={img} alt={`Work by ${artist.name}`} />
-          </div>
-        ))}
-      </div>
-
-      <button className="view-profile-btn">View Profile</button>
+      <Link to={`/artist/${artist._id}`} className="view-profile-btn">View Profile</Link>
     </div>
   );
 };
 
 const FeaturedArtists = () => {
+  const [artists, setArtists] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArtists = async () => {
+      try {
+        const res = await axios.get('/api/artists/featured');
+        setArtists(res.data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch featured artists:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArtists();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="featured-artists-section">
+        <div className="section-header-centered">
+          <span className="section-tag">Masters of Craft</span>
+          <h2>Featured Artists</h2>
+          <p>Meet the creators behind every masterpiece</p>
+        </div>
+        <div className="shimmer-grid">
+          {[1, 2, 3].map(i => <div key={i} className="shimmer-card"></div>)}
+        </div>
+      </section>
+    );
+  }
+
+  if (artists.length === 0) return null;
+
   return (
     <section className="featured-artists-section">
       <div className="section-header-centered">
@@ -100,8 +87,8 @@ const FeaturedArtists = () => {
       </div>
 
       <div className="artists-grid">
-        {artistData.map(artist => (
-          <ArtistCard key={artist.id} artist={artist} />
+        {artists.map(artist => (
+          <ArtistCard key={artist._id} artist={artist} />
         ))}
       </div>
     </section>

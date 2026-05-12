@@ -7,5 +7,7 @@ router.get('/dashboard', auth, isAdmin, adminController.getDashboardStats);
 router.get('/users', auth, isAdmin, adminController.getAllUsers);
 router.put('/update-status', auth, isAdmin, adminController.updateUserStatus);
 router.delete('/user/:userId', auth, isAdmin, adminController.deleteUser);
+router.get('/products', auth, isAdmin, adminController.getAllProducts);
+router.put('/product/:id', auth, isAdmin, adminController.updateProduct);
 
 module.exports = router;

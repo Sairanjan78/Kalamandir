@@ -1,0 +1,7 @@
+{
+  "signal": "SIGTERM",
+  "delay": 1500,
+  "verbose": false,
+  "ignore": ["node_modules", "uploads"],
+  "watch": ["*.js", "routes/", "controllers/", "models/", "middleware/", "config/"]
+}

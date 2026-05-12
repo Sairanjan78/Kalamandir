@@ -34,13 +34,24 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     location: {
+        street: String,
         city: String,
         state: String,
+        pincode: String,
         country: {
             type: String,
             default: 'India'
         }
     },
+    addresses: [{
+        street: String,
+        city: String,
+        state: String,
+        pincode: String,
+        country: { type: String, default: 'India' },
+        label: { type: String, enum: ['Home', 'Work', 'Other'], default: 'Home' },
+        isDefault: { type: Boolean, default: false }
+    }],
     bio: {
         type: String,
         maxlength: [500, 'Bio cannot exceed 500 characters']

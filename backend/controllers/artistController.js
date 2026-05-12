@@ -138,14 +138,41 @@ exports.updateArtistProfile = async (req, res) => {
 // Get featured artists
 exports.getFeaturedArtists = async (req, res) => {
     try {
-        const artists = await ArtistProfile.find({ isFeatured: true })
-            .populate('userId', 'name profileImage bio location')
+        // First try to find explicitly featured artists
+        let artists = await ArtistProfile.find({ isFeatured: true })
+            .populate('userId', 'name profileImage bio location artistStatus')
             .limit(8)
             .sort({ rating: -1 });
 
+        // Fallback: if no featured artists, show latest approved artists
+        if (artists.length === 0) {
+            const approvedUsers = await User.find({ role: 'artist', artistStatus: 'approved' })
+                .select('_id')
+                .limit(6);
+            const approvedIds = approvedUsers.map(u => u._id);
+            artists = await ArtistProfile.find({ userId: { $in: approvedIds } })
+                .populate('userId', 'name profileImage bio location artistStatus')
+                .limit(6)
+                .sort({ createdAt: -1 });
+        }
+
+        // Flatten the response so frontend gets user fields directly
+        const flatArtists = artists
+            .filter(a => a.userId) // skip orphaned profiles
+            .map(a => ({
+                _id: a.userId._id,
+                name: a.userId.name,
+                profileImage: a.userId.profileImage,
+                bio: a.userId.bio,
+                location: a.userId.location,
+                artistStatus: a.userId.artistStatus,
+                categories: a.categories,
+                rating: a.rating
+            }));
+
         res.json({
             success: true,
-            data: artists
+            data: flatArtists
         });
     } catch (error) {
         console.error('Get featured artists error:', error);

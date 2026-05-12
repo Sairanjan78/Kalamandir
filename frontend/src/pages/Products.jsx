@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ShoppingCart, Search, SlidersHorizontal, X } from 'lucide-react';
+import { ShoppingCart, Search, SlidersHorizontal, X, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES = ['All', 'Painting', 'Sculpture', 'Textile', 'Pottery', 'Jewelry', 'Decor'];
 
@@ -12,6 +14,9 @@ const Products = () => {
     const [activeCategory, setActiveCategory] = useState('All');
     const [sortBy, setSortBy] = useState('default');
     const [showFilters, setShowFilters] = useState(false);
+    const [addedId, setAddedId] = useState(null);
+    const { addItem } = useCart();
+    const { user } = useAuth();
 
     useEffect(() => {
         fetchProducts();
@@ -129,7 +134,7 @@ const Products = () => {
                             <div key={product._id} className="product-card">
                                 <div className="image-holder">
                                     <img
-                                        src={product.images?.[0]?.url || 'https://placehold.co/400x300?text=No+Image'}
+                                        src={product.images?.[0]?.url || ''}
                                         alt={product.title}
                                     />
                                     {product.discount > 0 && (
@@ -145,9 +150,15 @@ const Products = () => {
                                             <span className="old-price">₹{product.originalPrice}</span>
                                         )}
                                     </div>
-                                    <button className="add-btn">
-                                        <ShoppingCart size={18} /> Add to Cart
-                                    </button>
+                                    {(!user || user.role === 'customer') && (
+                                        <button className={`add-btn ${addedId === product._id ? 'added' : ''}`} onClick={() => {
+                                            addItem(product);
+                                            setAddedId(product._id);
+                                            setTimeout(() => setAddedId(null), 1500);
+                                        }}>
+                                            {addedId === product._id ? <><Check size={18} /> Added</> : <><ShoppingCart size={18} /> Add to Cart</>}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}

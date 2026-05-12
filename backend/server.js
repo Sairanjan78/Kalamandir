@@ -16,6 +16,7 @@ const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payments');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/upload');
+const messageRoutes = require('./routes/messages');
 
 // Initialize Express app
 const app = express();
@@ -31,8 +32,8 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from frontend directory (HTML/CSS/JS)
 app.use(express.static(path.join(__dirname, '../frontend')));
 
-// THE POWER: Link your local folder directly to the website
-app.use('/api/my-pics', express.static('D:\\craft\\pic'));
+// Serve local media assets
+app.use('/api/my-pics', express.static(path.join(__dirname, '..', 'pic')));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const connectDB = async () => {
@@ -94,19 +95,20 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
-
-// SPA Routing: Serve index.html for all non-API routes
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/index.html'));
-});
+app.use('/api/messages', messageRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
-        message: 'Indian Art Marketplace API is running',
+        message: 'Kalamandir API is running',
         timestamp: new Date().toISOString()
     });
+});
+
+// SPA Routing: Serve index.html for all non-API routes (must be LAST)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
 
 // Error handling middleware
@@ -118,9 +120,96 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Start server
+// Start server with auto-recovery for port conflicts
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌐 API available at http://localhost:${PORT}/api`);
+const { execSync } = require('child_process');
+
+function startServer() {
+    const server = app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`🌐 API available at http://localhost:${PORT}/api`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.log(`⚠️  Port ${PORT} is busy. Auto-killing the old process...`);
+            try {
+                // Find and kill whatever is on this port
+                const result = execSync(`netstat -ano | findstr ":${PORT}"`, { encoding: 'utf8' });
+                const lines = result.trim().split('\n');
+                const pids = new Set();
+                for (const line of lines) {
+                    const parts = line.trim().split(/\s+/);
+                    const pid = parts[parts.length - 1];
+                    if (pid && pid !== '0' && pid !== String(process.pid)) {
+                        pids.add(pid);
+                    }
+                }
+                for (const pid of pids) {
+                    try { execSync(`taskkill /PID ${pid} /F`, { stdio: 'ignore' }); } catch (e) {}
+                }
+                console.log(`✅ Killed ${pids.size} process(es). Restarting in 1.5s...`);
+            } catch (e) {
+                console.log('⚠️  Could not auto-kill. Retrying anyway...');
+            }
+            // Retry after a short delay
+            setTimeout(() => startServer(), 1500);
+            return;
+        }
+        throw err;
+    });
+
+    // Store server reference globally for shutdown handlers
+    global.__server = server;
+    return server;
+}
+
+const server = startServer();
+
+// MongoDB connection event listeners
+mongoose.connection.on('error', (err) => {
+    console.error('❌ MongoDB connection error:', err.message);
 });
+
+mongoose.connection.on('disconnected', () => {
+    console.warn('⚠️  MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('reconnected', () => {
+    console.log('✅ MongoDB reconnected successfully');
+});
+
+// Global error handlers — prevent silent crashes
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('⚠️  Unhandled Promise Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('💥 Uncaught Exception:', err.message);
+    console.error(err.stack);
+    const s = global.__server;
+    if (s) s.close(() => process.exit(1));
+    setTimeout(() => process.exit(1), 3000);
+});
+
+// Graceful shutdown
+const gracefulShutdown = (signal) => {
+    console.log(`\n🛑 ${signal} received. Shutting down gracefully...`);
+    const s = global.__server;
+    if (s) {
+        s.close(() => {
+            mongoose.connection.close(false).then(() => {
+                console.log('✅ MongoDB connection closed');
+                process.exit(0);
+            });
+        });
+    } else {
+        process.exit(0);
+    }
+    // Force exit after 5 seconds
+    setTimeout(() => process.exit(1), 5000);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+

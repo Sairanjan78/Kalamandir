@@ -1,31 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
-const cultureData = [
-  {
-    id: 'Madhubani',
-    title: 'Madhubani Art',
-    location: 'Bihar',
-    desc: 'Known for intricate patterns and mythological stories',
-    image: '/api/my-pics/madhubani_art_category_1776626790880.png'
-  },
-  {
-    id: 'Warli',
-    title: 'Warli Art',
-    location: 'Maharashtra',
-    desc: 'Minimal tribal art representing daily life',
-    image: '/api/my-pics/warli_art_category_1776626957376.png'
-  },
-  {
-    id: 'Pottery',
-    title: 'Pottery',
-    location: 'Rajasthan / Gujarat',
-    desc: 'Handcrafted clay work shaped by tradition',
-    image: '/api/my-pics/indian_pottery_category_1776627122349.png'
-  }
-];
+import axios from 'axios';
 
 const ExploreCulture = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get('/api/products/categories');
+        setCategories(res.data.data || []);
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   return (
     <section className="explore-culture-section">
       <div className="section-header">
@@ -33,25 +27,34 @@ const ExploreCulture = () => {
         <p>Each piece carries centuries of culture and craftsmanship</p>
       </div>
 
-      <div className="culture-grid">
-        {cultureData.map((item) => (
-          <div key={item.id} className="culture-card">
-            <div className="culture-image-holder">
-              <img src={item.image} alt={item.title} />
-              <div className="culture-overlay">
-                <span className="location-tag">📍 {item.location}</span>
+      {loading ? (
+        <div className="shimmer-grid">
+          {[1, 2, 3].map(i => <div key={i} className="shimmer-card"></div>)}
+        </div>
+      ) : categories.length > 0 ? (
+        <div className="culture-grid">
+          {categories.slice(0, 6).map((item) => (
+            <div key={item._id} className="culture-card">
+              <div className="culture-content">
+                <h3>🎨 {item._id}</h3>
+                <p>{item.count} {item.count === 1 ? 'artwork' : 'artworks'} available</p>
               </div>
             </div>
+          ))}
+        </div>
+      ) : (
+        <div className="culture-grid">
+          <div className="culture-card">
             <div className="culture-content">
-              <h3>🎨 {item.title}</h3>
-              <p>🧠 {item.desc}</p>
+              <h3>🎨 Coming Soon</h3>
+              <p>Artists are getting onboarded — check back soon!</p>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       <div className="storytelling-block">
-        <p>“From the walls of ancient villages to modern homes, Indian art tells stories of life, devotion, and heritage.”</p>
+        <p>"From the walls of ancient villages to modern homes, Indian art tells stories of life, devotion, and heritage."</p>
       </div>
 
       <div className="view-all-wrapper">

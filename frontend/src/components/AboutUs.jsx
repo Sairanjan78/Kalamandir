@@ -5,53 +5,53 @@ const AboutUs = () => {
   return (
     <section className="about-us-section" id="about">
       <div className="section-header-centered">
-        <span className="section-tag">Our Story</span>
+        <span className="section-tag">Our Mission</span>
         <h2>Our Heritage, Your Home</h2>
-        <p>Preserving the soul of Indian craftsmanship since 2026</p>
+        <p>A new platform preserving the soul of Indian craftsmanship</p>
       </div>
 
       <div className="about-grid">
         <div className="about-image-story">
           <img src="/api/my-pics/indian_pottery_category_1776627122349.png" alt="Artisan at work" />
           <div className="experience-badge">
-            <span className="years">15+</span>
-            <span className="text">Years of <br/>Legacy</span>
+            <span className="years">100%</span>
+            <span className="text">Authentic <br/>Craft</span>
           </div>
         </div>
 
         <div className="about-content">
           <h3>Bringing Ancient Wisdom to Modern Life</h3>
           <p>
-            Kalamandir was born out of a simple realization: the stories of our ancestors, 
-            told through their hands, were fading away. We set out on a journey across 
-            the forgotten villages of Bharat to find the guardians of these traditions.
+            Kalamandir is embarking on a mission to ensure the stories of our ancestors, 
+            told through their hands, continue to thrive. We are building a platform to connect 
+            the guardians of these traditions across Bharat directly with art lovers.
           </p>
           <p>
-            Today, we empower over 500+ rural artisans by providing them a global stage. 
-            Every purchase you make isn't just a transaction; it's a heartbeat for a dying 
-            tradition and a step towards a sustainable legacy.
+            As a newly launched marketplace, we are actively inviting artisans and art enthusiasts 
+            to join our growing community. Every purchase and every new artist helps us build a 
+            global stage for dying traditions and a sustainable legacy for the future.
           </p>
 
           <div className="stats-row">
             <div className="stat-item">
               <div className="stat-icon"><Users size={24} /></div>
               <div className="stat-info">
-                <h4>500+</h4>
-                <p>Artisans</p>
+                <h4>Community</h4>
+                <p>Growing Together</p>
               </div>
             </div>
             <div className="stat-item">
               <div className="stat-icon"><Palette size={24} /></div>
               <div className="stat-info">
-                <h4>20+</h4>
+                <h4>Authentic</h4>
                 <p>Art Forms</p>
               </div>
             </div>
             <div className="stat-item">
               <div className="stat-icon"><Heart size={24} /></div>
               <div className="stat-info">
-                <h4>10k+</h4>
-                <p>Deliveries</p>
+                <h4>Passion</h4>
+                <p>For Craft</p>
               </div>
             </div>
           </div>

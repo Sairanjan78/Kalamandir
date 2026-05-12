@@ -158,7 +158,7 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
     try {
         const updates = req.body;
-        const allowedUpdates = ['name', 'phone', 'location', 'bio', 'profileImage'];
+        const allowedUpdates = ['name', 'phone', 'location', 'addresses', 'bio', 'profileImage'];
 
         // Filter updates
         const filteredUpdates = {};
