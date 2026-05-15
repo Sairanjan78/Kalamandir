@@ -33,12 +33,18 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files from frontend directory (HTML/CSS/JS)
-app.use(express.static(path.join(__dirname, '../frontend')));
+// Serve local media assets (Move ABOVE frontend static to avoid clashing)
+const picPath = path.resolve(__dirname, '..', 'pic');
+const uploadsPath = path.resolve(__dirname, 'uploads');
 
-// Serve local media assets
-app.use('/api/my-pics', express.static(path.join(__dirname, '..', 'pic')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+console.log('🖼️  Serving media from:', picPath);
+console.log('📁 Serving uploads from:', uploadsPath);
+
+app.use('/api/my-pics', express.static(picPath));
+app.use('/uploads', express.static(uploadsPath));
+
+// Serve static files from frontend directory (HTML/CSS/JS)
+app.use(express.static(path.resolve(__dirname, '../frontend')));
 
 const connectDB = async () => {
     try {
