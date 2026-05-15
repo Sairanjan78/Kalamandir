@@ -1,26 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('../config/cloudinary');
+
 const { auth } = require('../middleware/auth');
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Multer storage config
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir);
+// Cloudinary storage config
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: "kalamandir",
+        allowed_formats: ["jpg", "jpeg", "png", "gif", "webp", "mp4", "webm", "mov"],
+        resource_type: "auto" // Support both image and video
     },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
 });
+
 
 // File filter for images and videos
 const fileFilter = (req, file, cb) => {
@@ -48,7 +43,7 @@ router.post('/', auth, upload.array('media', 6), (req, res) => {
         }
 
         const files = req.files.map(file => ({
-            url: `/uploads/${file.filename}`,
+            url: file.path, // Cloudinary URL
             originalName: file.originalname,
             type: file.mimetype.startsWith('video') ? 'video' : 'image',
             size: file.size
@@ -61,19 +56,16 @@ router.post('/', auth, upload.array('media', 6), (req, res) => {
     }
 });
 
-// Upload single profile photo
+// Upload single profile photo (also using Cloudinary)
 const profileUpload = multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-        const allowed = /jpeg|jpg|png|gif|webp/;
-        const extname = allowed.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowed.test(file.mimetype);
-        if (extname && mimetype) {
-            cb(null, true);
-        } else {
-            cb(new Error('Only image files (jpg, png, gif, webp) are allowed for profile photos'));
-        }
-    },
+    storage: new CloudinaryStorage({
+        cloudinary: cloudinary,
+        params: {
+            folder: "kalamandir/profiles",
+            allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
+            transformation: [{ width: 500, height: 500, crop: "fill" }]
+        },
+    }),
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB max for profile photos
 });
 
@@ -83,7 +75,7 @@ router.post('/profile-photo', auth, profileUpload.single('photo'), (req, res) =>
             return res.status(400).json({ success: false, message: 'No file uploaded' });
         }
 
-        const fileUrl = `/uploads/${req.file.filename}`;
+        const fileUrl = req.file.path; // Cloudinary URL
         res.json({ success: true, data: { url: fileUrl } });
     } catch (err) {
         console.error('Profile photo upload error:', err);
