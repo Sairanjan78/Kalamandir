@@ -19,16 +19,16 @@ const Home = () => {
     const { user } = useAuth();
     const [currentHero, setCurrentHero] = useState(0);
 
-    // Helper to translate your Windows path to a Web URL
+    // Helper to translate filename to Public URL
     const pathToUrl = (path) => {
-        const filename = path.split('\\').pop();
-        return `/api/my-pics/${encodeURIComponent(filename)}`;
+        const filename = path.split('\\').pop().split('/').pop();
+        return `/pic/${filename}`;
     };
 
     const heroImages = [
-        "D:\\craft\\pic\\poster_image.jpeg",
-        "D:\\craft\\pic\\WhatsApp Image 2026-04-19 at 2.40.36 PM.jpeg",
-        "D:\\craft\\pic\\WhatsApp Image 2026-04-19 at 2.27.32 PM.jpeg"
+        "poster_image.jpeg",
+        "WhatsApp Image 2026-04-19 at 2.40.36 PM.jpeg",
+        "WhatsApp Image 2026-04-19 at 2.27.32 PM.jpeg"
     ].map(pathToUrl);
 
     useEffect(() => {

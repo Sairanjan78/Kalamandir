@@ -22,8 +22,8 @@ const steps = [
 ];
 
 const ArtProcess = () => {
-    const videoUrl = "/api/my-pics/making_process.mp4";
-    const posterUrl = "/api/my-pics/poster_image.jpeg";
+    const videoUrl = "/pic/making_process.mp4";
+    const posterUrl = "/pic/poster_image.jpeg";
     const videoRef = useRef(null);
     const sectionRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
