@@ -34,13 +34,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve local media assets (Move ABOVE frontend static to avoid clashing)
-const picPath = path.resolve(__dirname, '..', 'pic');
 const uploadsPath = path.resolve(__dirname, 'uploads');
 
-console.log('🖼️  Serving media from:', picPath);
 console.log('📁 Serving uploads from:', uploadsPath);
 
-app.use('/api/my-pics', express.static(picPath));
 app.use('/uploads', express.static(uploadsPath));
 
 // Serve static files from frontend directory (HTML/CSS/JS)
