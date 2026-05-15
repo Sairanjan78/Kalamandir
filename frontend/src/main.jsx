@@ -8,7 +8,10 @@ import './index.css'
 import App from './App.jsx'
 
 // Deployment Configuration
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+axios.defaults.baseURL = API_URL;
+
+console.log('🌐 Frontend initialized with API URL:', API_URL);
 
 // Auto-attach auth token to all requests
 axios.interceptors.request.use((config) => {
@@ -18,6 +21,21 @@ axios.interceptors.request.use((config) => {
     }
     return config;
 });
+
+// Debugging: Log all response errors
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('📡 API Error:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            message: error.response?.data?.message || error.message,
+            fullError: error
+        });
+        return Promise.reject(error);
+    }
+);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
