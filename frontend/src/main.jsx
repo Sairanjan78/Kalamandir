@@ -8,7 +8,13 @@ import './index.css'
 import App from './App.jsx'
 
 // Deployment Configuration
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+// Prevent double '/api/api' if the environment variable already ends with /api
+if (API_URL.endsWith('/api')) {
+    API_URL = API_URL.slice(0, -4);
+}
+
 axios.defaults.baseURL = API_URL;
 
 console.log('🌐 Frontend initialized with API URL:', API_URL);
