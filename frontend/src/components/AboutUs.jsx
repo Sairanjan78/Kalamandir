@@ -12,7 +12,7 @@ const AboutUs = () => {
 
       <div className="about-grid">
         <div className="about-image-story">
-          <img src="/pic/indian_pottery_category_1776627122349.png" alt="Artisan at work" />
+          <img src="/pic/pottery.png" alt="Artisan at work" />
           <div className="experience-badge">
             <span className="years">100%</span>
             <span className="text">Authentic <br/>Craft</span>

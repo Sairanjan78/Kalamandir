@@ -26,9 +26,9 @@ const Home = () => {
     };
 
     const heroImages = [
-        "poster_image.jpeg",
-        "WhatsApp Image 2026-04-19 at 2.40.36 PM.jpeg",
-        "WhatsApp Image 2026-04-19 at 2.27.32 PM.jpeg"
+        "hero1.jpg",
+        "hero2.jpg",
+        "hero3.jpg"
     ].map(pathToUrl);
 
     useEffect(() => {
