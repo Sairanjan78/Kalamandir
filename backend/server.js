@@ -22,12 +22,25 @@ const messageRoutes = require('./routes/messages');
 const app = express();
 
 // Middleware
+// Dynamic CORS configuration
+const allowedOrigins = [
+  "https://kalamandir.vercel.app",
+  "http://localhost:5173",
+  "http://localhost:3000"
+];
+
 app.use(cors({
-  origin: [
-    "https://kalamandir.vercel.app",
-    "http://localhost:5173",
-    "http://localhost:3000"
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith(".vercel.app")) {
+      callback(null, true);
+    } else {
+      console.log('🚫 CORS Blocked Origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json());
