@@ -14,8 +14,8 @@ build/
 backend/uploads/*
 !backend/uploads/.gitkeep
 
-# Local media assets
-pic/
+# Local media assets (root only)
+/pic/
 
 # OS files
 .DS_Store
