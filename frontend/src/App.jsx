@@ -122,6 +122,7 @@ const Navbar = () => {
                     </button>
                 </div>
             </div>
+            {isMenuOpen && <div className="nav-overlay" onClick={() => setIsMenuOpen(false)}></div>}
         </nav>
     );
 };

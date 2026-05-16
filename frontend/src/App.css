@@ -32,17 +32,38 @@ html {
   background: var(--clay);
 }
 
-body {
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
   background-color: var(--cream);
   color: var(--bark);
   font-family: 'DM Sans', sans-serif;
+}
+
+.app {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1.25rem;
+  }
 }
 
 .container-wide {
@@ -80,9 +101,9 @@ body {
 
 .navbar {
   position: fixed;
-  width: 100%;
   top: 0;
   left: 0;
+  right: 0;
   z-index: 1000;
   padding: 1.4rem 0;
   background-color: rgba(255, 252, 248, 0); /* starts fully transparent */
@@ -150,6 +171,12 @@ body {
   text-shadow: 0 2px 8px rgba(0,0,0,0.4);
 }
 
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.7rem;
+  }
+}
+
 .logo span {
   color: var(--ochre);
   margin-left: 1px;
@@ -188,10 +215,16 @@ body {
 
 /* Grid layout */
 .nav-content {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
+}
+
+@media (max-width: 992px) {
+  .nav-content {
+    gap: 0.5rem;
+  }
 }
 
 /* Nav actions */
@@ -235,21 +268,24 @@ body {
   .nav-links {
     position: fixed;
     top: 0;
-    right: -100%;
+    right: 0;
     height: 100vh;
-    width: 300px;
+    width: 85%;
+    max-width: 320px;
     background: white;
     flex-direction: column;
-    padding: 6rem 3rem;
+    padding: 6rem 2rem;
     justify-content: flex-start;
     align-items: flex-start;
     box-shadow: -15px 0 40px rgba(0, 0, 0, 0.15);
     z-index: 999;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     animation: none;
   }
 
   .nav-links.mobile-open {
-    right: 0;
+    transform: translateX(0);
   }
 
   .nav-links .nav-link {
@@ -260,6 +296,33 @@ body {
     padding: 1.2rem 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     display: block;
+    opacity: 0;
+  }
+
+  .nav-links.mobile-open .nav-link {
+    animation: mobileLinkSlide 0.5s ease forwards;
+  }
+
+  .nav-links.mobile-open .nav-link:nth-child(1) { animation-delay: 0.1s; }
+  .nav-links.mobile-open .nav-link:nth-child(2) { animation-delay: 0.15s; }
+  .nav-links.mobile-open .nav-link:nth-child(3) { animation-delay: 0.2s; }
+  .nav-links.mobile-open .nav-link:nth-child(4) { animation-delay: 0.25s; }
+  .nav-links.mobile-open .nav-link:nth-child(5) { animation-delay: 0.3s; }
+  .nav-links.mobile-open .mobile-only-actions { 
+    animation: mobileLinkSlide 0.5s ease forwards;
+    animation-delay: 0.35s;
+    opacity: 0;
+  }
+}
+
+@keyframes mobileLinkSlide {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -296,6 +359,21 @@ body {
 .nav-link.highlight {
   color: var(--clay) !important;
   font-weight: 700;
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 16, 6, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 998;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* Hamburger */
@@ -438,6 +516,14 @@ body {
   margin-bottom: 1rem;
 }
 
+@media (max-width: 768px) {
+  .premium-hero {
+    height: 60vh;
+    min-height: 400px;
+    border-radius: 20px;
+  }
+}
+
 .hero-bg-image {
   position: absolute;
   top: 0;
@@ -475,7 +561,6 @@ body {
   max-width: 600px;
   text-align: left;
 }
-
 .hero-content-v2 h1 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 5rem;
@@ -483,6 +568,18 @@ body {
   margin-bottom: 1rem;
   font-weight: 700;
   text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .hero-content-v2 h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content-v2 h1 {
+    font-size: 2.2rem;
+  }
 }
 
 .hero-content-v2 p {
@@ -753,6 +850,14 @@ body {
   animation: heroFadeIn 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 60px 1rem 40px;
+    border-radius: 20px;
+    min-height: auto;
+  }
+}
+
 @keyframes heroFadeIn {
   from {
     opacity: 0;
@@ -778,6 +883,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.6);
   animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   transition: max-width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 1.5rem;
+    border-radius: 20px;
+  }
 }
 
 .auth-card.artist-auth-card:has(.role-btn.active:nth-child(2)) {
@@ -2043,6 +2155,14 @@ body {
   margin-top: 4rem;
 }
 
+@media (max-width: 768px) {
+  .about-us-section {
+    padding: 2.5rem 1.2rem;
+    margin-top: 2rem;
+    border-radius: 24px;
+  }
+}
+
 .about-grid {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
@@ -2144,11 +2264,16 @@ body {
   background: linear-gradient(135deg, #fdfaf7 0%, #fff 100%);
   position: relative;
   overflow: hidden;
-  margin: 10rem auto;
+  margin: 6rem auto;
   border-radius: 60px;
-  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(166, 123, 91, 0.05);
-  max-width: 1400px;
+}
+
+@media (max-width: 768px) {
+  .contact-us-section {
+    padding: 3rem 1.2rem;
+    margin: 3rem 1rem;
+    border-radius: 30px;
+  }
 }
 
 .contact-us-section::before {
@@ -2190,6 +2315,12 @@ body {
   margin: 1rem 0;
 }
 
+@media (max-width: 768px) {
+  .contact-header-v3 h2 {
+    font-size: 2.5rem;
+  }
+}
+
 .contact-header-v3 p {
   color: #8e9496;
   font-size: 1.2rem;
@@ -2228,6 +2359,24 @@ body {
   border-color: rgba(166, 123, 91, 0.15);
 }
 
+@media (max-width: 480px) {
+  .info-card-v3 {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+  
+  .info-icon-v3 {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+
+  .info-content-v3 p {
+    font-size: 0.95rem;
+    word-break: break-word;
+  }
+}
+
 .info-icon-v3 {
   width: 64px;
   height: 64px;
@@ -2262,6 +2411,13 @@ body {
   border-radius: 40px;
   box-shadow: 0 30px 70px rgba(0,0,0,0.06);
   border: 1px solid rgba(0,0,0,0.02);
+}
+
+@media (max-width: 768px) {
+  .contact-form-v3 {
+    padding: 2rem 1.5rem;
+    border-radius: 24px;
+  }
 }
 
 .v3-form {
