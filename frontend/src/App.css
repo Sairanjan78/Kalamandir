@@ -2266,6 +2266,10 @@ html, body {
   overflow: hidden;
   margin: 6rem auto;
   border-radius: 60px;
+  max-width: 1400px;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (max-width: 768px) {
@@ -2274,6 +2278,11 @@ html, body {
     margin: 3rem 1rem;
     border-radius: 30px;
   }
+}
+
+.contact-us-section.reveal {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .contact-us-section::before {
@@ -2351,6 +2360,8 @@ html, body {
   box-shadow: 0 10px 40px rgba(0,0,0,0.02);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   border: 1px solid rgba(0,0,0,0.03);
+  text-decoration: none;
+  color: inherit;
 }
 
 .info-card-v3:hover {
@@ -2461,6 +2472,7 @@ html, body {
   outline: none;
   border-color: var(--clay);
   background: white;
+  box-shadow: 0 10px 30px rgba(196, 98, 45, 0.08);
 }
 
 .input-group-v3 input:focus + label,
@@ -2496,6 +2508,11 @@ html, body {
 .submit-btn-v3:hover {
   transform: translateY(-5px);
   box-shadow: 0 20px 45px rgba(166, 123, 91, 0.45);
+  background: linear-gradient(135deg, #8b5a33, var(--clay));
+}
+
+.submit-btn-v3:active {
+  transform: translateY(-2px) scale(0.98);
 }
 
 .status-alert-v3 {

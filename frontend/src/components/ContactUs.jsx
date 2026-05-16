@@ -6,6 +6,25 @@ const ContactUs = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: '', msg: '' });
+  const [visible, setVisible] = useState(false);
+  const sectionRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +46,7 @@ const ContactUs = () => {
   };
 
   return (
-    <section className="contact-us-section" id="contact">
+    <section className={`contact-us-section ${visible ? 'reveal' : ''}`} id="contact" ref={sectionRef}>
       <div className="container">
         <div className="contact-premium-wrapper">
           <div className="contact-header-v3">
@@ -38,20 +57,20 @@ const ContactUs = () => {
 
           <div className="contact-grid-v3">
             <div className="contact-info-v3">
-              <div className="info-card-v3">
+              <a href="mailto:hello@kalamandir.art" className="info-card-v3">
                 <div className="info-icon-v3"><Mail size={24} /></div>
                 <div className="info-content-v3">
                   <h4>Email Us</h4>
                   <p>hello@kalamandir.art</p>
                 </div>
-              </div>
-              <div className="info-card-v3">
+              </a>
+              <a href="tel:+917381057877" className="info-card-v3">
                 <div className="info-icon-v3"><Phone size={24} /></div>
                 <div className="info-content-v3">
                   <h4>Call Us</h4>
                   <p>+91 73810 57877</p>
                 </div>
-              </div>
+              </a>
               <div className="info-card-v3">
                 <div className="info-icon-v3"><MapPin size={24} /></div>
                 <div className="info-content-v3">
